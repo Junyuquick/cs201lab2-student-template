@@ -1,31 +1,141 @@
-public void swap(){
-    if (size <= 1){
-        return;
+import java.util.*;
+
+public class SinglyLinkedList<E extends Comparable<E>> {
+    private Node<E> head = null;
+    private Node<E> tail = null;
+    private int size = 0;
+
+    private static class Node<E> {
+        private E element;
+        private Node<E> next;
+    
+        public Node(E e, Node<E> n){
+            element = e;
+            next = n;
+        }
+    
+        public E getElement(){
+            return element;
+        }
+    
+        public Node<E> getNext(){
+            return next;
+        }
+    
+        public void setNext(Node<E> n){
+            next = n;
+        }
     }
 
-    List<Node<E>> nodes = new ArrayList<>(size);
-    for (Node<E> current = head; current != null; current = current.getNext()){
-        nodes.add(current);
+    public SinglyLinkedList(){
+
     }
 
-    Integer[] byValue = new Integer[size];
-    for (int i = 0; i < size; i++){
-        byValue[i] = i;
-    }
-    Arrays.sort(byValue, (a, b) -> nodes.get(a).getElement().compareTo(nodes.get(b).getElement()));
-
-    for (int i = 0; i < size / 2; i++){
-        int lowIndex = byValue[i];
-        int highIndex = byValue[size - 1 - i];
-        Node<E> lowNode = nodes.get(lowIndex);
-        nodes.set(lowIndex, nodes.get(highIndex));
-        nodes.set(highIndex, lowNode);
+    public int size(){
+        return size;
     }
 
-    for (int i = 0; i < size - 1; i++){
-        nodes.get(i).setNext(nodes.get(i + 1));
+    public boolean isEmpty(){
+        return size == 0;
     }
-    nodes.get(size - 1).setNext(null);
-    head = nodes.get(0);
-    tail = nodes.get(size - 1);
+
+    public E first(){
+        if (isEmpty()){
+            return null;
+        } 
+        return head.getElement();
+    }
+
+    public E last(){
+        if (isEmpty()){
+            return null;
+        }
+        return tail.getElement();
+    }
+
+    public void addFirst(E e){
+        head = new Node<>(e, head);
+
+        if (isEmpty()){
+            tail = head;
+        }
+        size++;
+    }
+
+    public void addLast(E e){
+        Node<E> newest = new Node<>(e, null);
+        if (isEmpty()){
+            head = newest;
+        } else {
+            tail.setNext(newest);
+        }
+        tail = newest;
+        size++;
+    }
+
+    public E removeFirst(){
+        if (isEmpty()){
+            return null;
+        }
+
+        E answer = head.getElement();
+        head = head.getNext();
+        size--;
+
+        if (isEmpty()){
+            tail = null;
+        }
+        return answer;
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        Node<E> current = head;
+        while (current != null) {
+            sb.append(current.getElement());
+            sb.append(" ");
+            current = current.getNext();
+        }
+        return sb.toString();
+    }
+
+    // write your codes here
+    public void swap(){
+        if (size < 2) {
+            return;
+        }
+
+        List<Node<E>> nodes = new ArrayList<>(size);
+        Node<E> current = head;
+        while (current != null) {
+            nodes.add(current);
+            current = current.getNext();
+        }
+
+        Integer[] idx = new Integer[size];
+        for (int i = 0; i < size; i++) {
+            idx[i] = i;
+        }
+        Arrays.sort(idx, (a, b) -> nodes.get(a).getElement().compareTo(nodes.get(b).getElement()));
+
+        int[] rankOfPos = new int[size];
+        List<Node<E>> sortedNodes = new ArrayList<>(size);
+        for (int r = 0; r < size; r++) {
+            rankOfPos[idx[r]] = r;
+            sortedNodes.add(nodes.get(idx[r]));
+        }
+
+        List<Node<E>> newOrder = new ArrayList<>(size);
+        for (int p = 0; p < size; p++) {
+            newOrder.add(sortedNodes.get(size - 1 - rankOfPos[p]));
+        }
+
+        for (int i = 0; i < size - 1; i++) {
+            newOrder.get(i).setNext(newOrder.get(i + 1));
+        }
+        newOrder.get(size - 1).setNext(null);
+        head = newOrder.get(0);
+        tail = newOrder.get(size - 1);
+    }
+   
 }
